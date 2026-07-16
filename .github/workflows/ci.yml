@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-package:
+    runs-on: macos-15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Run Swift tests
+        run: swift test
+
+      - name: Validate scripts
+        run: >-
+          bash -n build_app.sh package_release.sh scripts/check-public-content.sh
+          Tests/Packaging/build_app_test.sh Tests/Packaging/brand_assets_test.sh
+          Tests/Packaging/public_content_test.sh Tests/Packaging/release_workflow_test.sh
+
+      - name: Verify public content
+        run: |
+          bash scripts/check-public-content.sh
+          bash Tests/Packaging/public_content_test.sh
+
+      - name: Verify release workflow
+        run: bash Tests/Packaging/release_workflow_test.sh
+
+      - name: Verify brand assets
+        run: bash Tests/Packaging/brand_assets_test.sh
+
+      - name: Verify application packaging
+        run: bash Tests/Packaging/build_app_test.sh

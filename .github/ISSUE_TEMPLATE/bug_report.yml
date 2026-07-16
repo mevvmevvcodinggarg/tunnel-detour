@@ -1,0 +1,50 @@
+name: Bug report
+description: Report reproducible TunnelDetour behavior with sanitized details.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Remove private domains, VPN names, addresses, tokens, credentials, and employer/customer identifiers."
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "15.5"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: TunnelDetour version
+      placeholder: "0.1.0 Beta"
+    validations:
+      required: true
+  - type: input
+    id: vpn_type
+    attributes:
+      label: VPN type
+      description: General protocol/client type only; do not include an organization name.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: sanitized_logs
+    attributes:
+      label: Sanitized logs or screenshots
+      description: Double-check that private identifiers have been removed.
