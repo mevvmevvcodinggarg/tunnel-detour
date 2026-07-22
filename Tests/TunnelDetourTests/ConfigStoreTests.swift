@@ -38,7 +38,7 @@ final class ConfigStoreTests: XCTestCase {
     func testDefaultConfigUsesGenericOptionalPrivateCheck() {
         let config = TunnelDetourConfig.defaults
 
-        XCTAssertEqual(config.schemaVersion, 8)
+        XCTAssertEqual(config.schemaVersion, TunnelDetourConfig.currentSchemaVersion)
         XCTAssertEqual(config.enabledServiceIDs, Set(TunnelDetourConfig.serviceGroups.map(\.id)))
         XCTAssertTrue(config.customDomainTargets.isEmpty)
         XCTAssertTrue(config.googleServicesDirect)
@@ -138,6 +138,33 @@ final class ConfigStoreTests: XCTestCase {
         XCTAssertTrue(loaded.customDomainTargets.contains(RouteTarget(kind: .domain, value: "api.example.com")))
         XCTAssertTrue(loaded.domainTargets.contains(RouteTarget(kind: .domain, value: "api.example.com")))
         XCTAssertEqual(loaded.ipv4Targets.last, RouteTarget(kind: .ipv4, value: "203.0.113.10"))
+    }
+
+    func testConfigLoadMigratesWildcardDomainsAndPersistsCanonicalValues() throws {
+        let tempDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let configURL = tempDirectory.appendingPathComponent("config.json")
+        let store = ConfigStore(configURL: configURL)
+        defer { try? FileManager.default.removeItem(at: tempDirectory) }
+
+        var config = TunnelDetourConfig.defaults
+        config.schemaVersion = 8
+        config.customDomainTargets = [
+            RouteTarget(kind: .domain, value: "*.Example.com"),
+            RouteTarget(kind: .domain, value: "example.com")
+        ]
+        try store.save(config)
+
+        let loaded = try store.load()
+        let rewritten = try JSONDecoder().decode(
+            TunnelDetourConfig.self,
+            from: Data(contentsOf: configURL)
+        )
+
+        XCTAssertEqual(loaded.customDomainTargets.map(\.value), ["example.com"])
+        XCTAssertEqual(rewritten.customDomainTargets.map(\.value), ["example.com"])
+        XCTAssertEqual(loaded.schemaVersion, 9)
+        XCTAssertEqual(rewritten.schemaVersion, 9)
     }
 
     func testMissingConfigLoadsDefaults() throws {

@@ -7,6 +7,18 @@ final class RouteManagerTests: XCTestCase {
         XCTAssertEqual(RouteManager.normalizeHost(" API.EXAMPLE.COM "), "api.example.com")
     }
 
+    func testNormalizeHostCanonicalizesWildcardDomain() {
+        XCTAssertEqual(RouteManager.normalizeHost("*.Media.Example.com"), "media.example.com")
+        XCTAssertEqual(RouteManager.normalizeHost("*.*.example.com"), "example.com")
+    }
+
+    func testDirectTargetStoresCanonicalWildcardDomain() {
+        XCTAssertEqual(
+            RouteManager.directTarget(for: "*.example.com"),
+            RouteTarget(kind: .domain, value: "example.com")
+        )
+    }
+
     func testInferResolverDomainUsesRegistrableTail() {
         XCTAssertEqual(RouteManager.inferResolverDomain(from: "api.example.com"), "example.com")
         XCTAssertEqual(RouteManager.inferResolverDomain(from: "claude.ai"), "claude.ai")

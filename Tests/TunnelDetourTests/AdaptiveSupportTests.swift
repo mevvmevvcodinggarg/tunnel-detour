@@ -26,6 +26,20 @@ final class AdaptiveSupportTests: XCTestCase {
         XCTAssertEqual(request.directCIDRs, ["142.250.0.0/15"])
     }
 
+    func testApplyRequestCanonicalizesDomainsBeforeHelperValidation() {
+        var config = TunnelDetourConfig.defaults
+        config.customDomainTargets = [
+            RouteTarget(kind: .domain, value: "*.Example.com"),
+            RouteTarget(kind: .domain, value: "example.com")
+        ]
+
+        let request = AdaptiveRequest.apply(config: config, directCIDRs: [])
+
+        XCTAssertEqual(request.domainTargets.filter { $0 == "example.com" }.count, 1)
+        XCTAssertFalse(request.domainTargets.contains { $0.contains("*") })
+        XCTAssertTrue(request.resolverDomains.contains("example.com"))
+    }
+
     func testLaunchDaemonPlistUsesPrivatePathsAndNoLogs() throws {
         let data = try AdaptiveArtifacts.launchDaemonPlist(
             helperPath: "/Library/PrivilegedHelperTools/com.tunnel-detour.adaptive-helper",

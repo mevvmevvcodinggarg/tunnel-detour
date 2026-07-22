@@ -990,10 +990,16 @@ final class MainWindowController: NSWindowController {
         let domains = unique(parseLines(domainsTextView.string)
             .map(RouteManager.normalizeHost)
             .filter { !$0.isEmpty && !RouteManager.isIPv4($0) })
+        guard domains.allSatisfy(NetworkInputValidator.isDomain) else {
+            throw RouteManagerError.invalidTarget
+        }
         let ipv4Targets = unique(parseLines(ipv4TextView.string)
             .map(RouteManager.normalizeHost)
             .filter(RouteManager.isIPv4))
         let privateHost = RouteManager.normalizeHost(privateHostField.stringValue)
+        guard privateHost.isEmpty || NetworkInputValidator.isDomain(privateHost) else {
+            throw RouteManagerError.invalidTarget
+        }
         let enabledServiceIDs = Set(serviceCheckboxes.compactMap { id, checkbox in
             checkbox.state == .on ? id : nil
         })

@@ -17,7 +17,7 @@ body:
     id: version
     attributes:
       label: TunnelDetour version
-      placeholder: "0.1.0 Beta"
+      placeholder: "0.1.1 Beta"
     validations:
       required: true
   - type: input

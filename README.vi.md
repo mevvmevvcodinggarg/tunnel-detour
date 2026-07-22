@@ -28,7 +28,8 @@ Không cần và không nên tắt Gatekeeper toàn hệ thống.
 
 1. Kết nối VPN theo cách bình thường.
 2. Chọn nhóm dịch vụ cần đi trực tiếp; bỏ chọn những nhóm không cần thiết.
-3. Thêm domain hoặc IPv4 tùy chỉnh, mỗi dòng một giá trị.
+3. Thêm domain hoặc IPv4 tùy chỉnh, mỗi dòng một giá trị. Dạng `*.example.com` sẽ
+   tự được lưu thành `example.com`, vốn đã áp dụng cho các subdomain.
 4. Kiểm tra interface mạng thường và DNS public. Mặc định là `en0`, `8.8.8.8`,
    `1.1.1.1`; hãy sửa nếu máy bạn dùng giá trị khác.
 5. **Private Check (optional)** để trống. Chỉ nhập hostname mạng riêng khi bạn có
@@ -41,7 +42,8 @@ Không cần và không nên tắt Gatekeeper toàn hệ thống.
 - Kết nối VPN trước, sau đó mở TunnelDetour và bấm Apply.
 - Khi thêm/bớt dịch vụ, lưu rồi Apply lại.
 - Không thêm cả dải mạng lớn nếu chỉ cần một domain hoặc IP.
-- Trước khi đổi Wi-Fi, gateway hay VPN, có thể chọn **More → Restore Network**.
+- Có thể đổi Wi-Fi/gateway mà không cần Restore trước. TunnelDetour sẽ tạm trả DNS
+  về đường mạng bình thường rồi tự áp lại route khi gateway mới ổn định.
 
 Sau ba lần Apply thành công, ứng dụng có thể mời Sponsor một lần. **Maybe Later**
 chỉ nhắc lại sau mười lần Apply thành công nữa; **Don't Show Again** tắt lời nhắc.
@@ -55,9 +57,9 @@ Không chia sẻ hostname riêng trong issue, ảnh chụp hoặc log public.
 
 ## Khôi phục khi mạng lỗi
 
-1. Chọn **More → Restore Network**.
-2. Ngắt rồi kết nối lại VPN bằng ứng dụng VPN của bạn.
-3. Thử Apply với ít dịch vụ hơn.
+1. Sau khi đổi mạng, chờ vài giây để ứng dụng tự phục hồi.
+2. Nếu vẫn lỗi, chọn **More → Restore Network**.
+3. Ngắt rồi kết nối lại VPN bằng ứng dụng VPN của bạn và Apply lại.
 4. Nếu helper không phản hồi, chọn **More → Remove Helper**, mở lại TunnelDetour và Apply.
 5. Nếu vẫn lỗi, khởi động lại macOS và gửi issue đã xóa sạch thông tin riêng.
 

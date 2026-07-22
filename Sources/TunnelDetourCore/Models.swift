@@ -98,7 +98,7 @@ public struct TunnelDetourConfig: Codable, Equatable {
         self.resolverDomains = resolverDomains
     }
 
-    public static let currentSchemaVersion = 8
+    public static let currentSchemaVersion = 9
 
     public static let previousDefaultDomainValues: [String] = [
         // AI assistants and model APIs
@@ -356,7 +356,9 @@ public struct TunnelDetourConfig: Codable, Equatable {
     )
 
     public static func migratedToCurrentDefaults(_ config: TunnelDetourConfig) -> TunnelDetourConfig {
-        guard config.schemaVersion < currentSchemaVersion else { return config }
+        guard config.schemaVersion < currentSchemaVersion else {
+            return config.canonicalized()
+        }
 
         let previousDefaultTargets = Set(previousDefaultDomainValues)
         let customDomainTargets = config.customDomainTargets.filter {
@@ -372,6 +374,27 @@ public struct TunnelDetourConfig: Codable, Equatable {
             googleServicesDirect: config.googleServicesDirect,
             adaptiveDirectSites: config.adaptiveDirectSites,
             schemaVersion: currentSchemaVersion
+        ).canonicalized()
+    }
+
+    public func canonicalized() -> TunnelDetourConfig {
+        let canonicalTargets = Self.merge(customDomainTargets.compactMap { target -> RouteTarget? in
+            guard target.kind == .domain else { return target }
+            let value = RouteManager.normalizeHost(target.value)
+            guard !value.isEmpty else { return nil }
+            return RouteTarget(kind: .domain, value: value)
+        }, [])
+
+        return TunnelDetourConfig(
+            wifiInterface: wifiInterface,
+            publicDNS: publicDNS,
+            customDomainTargets: canonicalTargets,
+            enabledServiceIDs: enabledServiceIDs,
+            ipv4Targets: ipv4Targets,
+            privateCheckHost: RouteManager.normalizeHost(privateCheckHost),
+            googleServicesDirect: googleServicesDirect,
+            adaptiveDirectSites: adaptiveDirectSites,
+            schemaVersion: Self.currentSchemaVersion
         )
     }
 

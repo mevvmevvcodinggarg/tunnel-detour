@@ -55,7 +55,11 @@ public struct RouteManager {
         if let colon = host.firstIndex(of: ":") {
             host = String(host[..<colon])
         }
-        return host.trimmingCharacters(in: CharacterSet(charactersIn: ". "))
+        host = host.trimmingCharacters(in: CharacterSet(charactersIn: ". "))
+        while host.hasPrefix("*.") {
+            host.removeFirst(2)
+        }
+        return host
     }
 
     public static func inferResolverDomain(from input: String) -> String? {

@@ -19,18 +19,24 @@ public struct AdaptiveRequest: Codable, Equatable {
     public var repairTarget: String?
 
     public static func apply(config: TunnelDetourConfig, directCIDRs: [String]) -> AdaptiveRequest {
-        AdaptiveRequest(
+        let canonical = config.canonicalized()
+        return AdaptiveRequest(
             id: UUID().uuidString,
             action: .apply,
-            wifiInterface: config.wifiInterface,
-            publicDNS: config.publicDNS,
-            domainTargets: config.domainTargets.map(\.value),
-            ipv4Targets: config.ipv4Targets.map(\.value),
-            resolverDomains: config.resolverDomains,
+            wifiInterface: canonical.wifiInterface,
+            publicDNS: unique(canonical.publicDNS.filter(RouteManager.isIPv4)),
+            domainTargets: unique(canonical.domainTargets.map(\.value).filter(NetworkInputValidator.isDomain)),
+            ipv4Targets: unique(canonical.ipv4Targets.map(\.value).filter(RouteManager.isIPv4)),
+            resolverDomains: unique(canonical.resolverDomains.filter(NetworkInputValidator.isDomain)),
             directCIDRs: directCIDRs,
-            adaptiveEnabled: config.adaptiveDirectSites,
+            adaptiveEnabled: canonical.adaptiveDirectSites,
             repairTarget: nil
         )
+    }
+
+    private static func unique<T: Hashable>(_ values: [T]) -> [T] {
+        var seen = Set<T>()
+        return values.filter { seen.insert($0).inserted }
     }
 
     public static func restore() -> AdaptiveRequest {

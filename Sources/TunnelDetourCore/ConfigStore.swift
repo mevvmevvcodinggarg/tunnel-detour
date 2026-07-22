@@ -40,6 +40,10 @@ public struct ConfigStore {
     private func loadConfig(at url: URL) throws -> TunnelDetourConfig {
         let data = try Data(contentsOf: url)
         let decoded = try JSONDecoder().decode(TunnelDetourConfig.self, from: data)
-        return TunnelDetourConfig.migratedToCurrentDefaults(decoded)
+        let migrated = TunnelDetourConfig.migratedToCurrentDefaults(decoded)
+        if migrated != decoded {
+            try save(migrated)
+        }
+        return migrated
     }
 }

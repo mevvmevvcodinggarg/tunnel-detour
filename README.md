@@ -42,6 +42,8 @@ Do not disable Gatekeeper globally.
 1. Connect your VPN normally.
 2. Open TunnelDetour and select only the service groups you want to use directly.
 3. Add custom domains or IPv4 addresses when needed.
+   A leading wildcard such as `*.example.com` is stored as `example.com`, which
+   already covers its subdomains.
 4. Check the normal network interface and public DNS settings. Defaults are `en0`,
    `8.8.8.8`, and `1.1.1.1`; change them if your Mac uses different values.
 5. Leave **Private Check (optional)** empty unless you have a private hostname you
@@ -62,6 +64,10 @@ only for selected domain suffixes. An installed launch daemon performs the small
 set of operations that require administrator privileges. Inputs are validated and
 passed as process arguments rather than interpolated into arbitrary commands.
 
+When the normal gateway disappears or changes, the helper temporarily restores
+ordinary DNS access, then reapplies the managed routes after the new gateway is
+stable. You do not need to Restore Network before changing Wi-Fi.
+
 ## Safety and privacy
 
 - Configuration stays under your user Application Support directory.
@@ -76,8 +82,9 @@ See [PRIVACY.md](PRIVACY.md) and [SECURITY.md](SECURITY.md).
 
 - **A selected site still uses the VPN:** confirm the service/custom domain is
   selected, click Apply again, then Verify. CDN-backed sites may change addresses.
-- **A site stops resolving:** choose **More → Restore Network**, reconnect the VPN,
-  then apply a smaller destination set.
+- **A site stops resolving after a network change:** wait a few seconds for automatic
+  recovery. If it remains unavailable, choose **More → Restore Network**, reconnect
+  the VPN, then Apply again.
 - **The helper does not respond:** choose **More → Remove Helper**, reopen the app,
   and Apply to install a fresh helper.
 - **The wrong interface is shown:** use `route -n get default` in Terminal and set
